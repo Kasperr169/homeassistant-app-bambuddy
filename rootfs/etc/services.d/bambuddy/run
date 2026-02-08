@@ -23,5 +23,8 @@ if [ "${debug}" = "true" ]; then
   export DEBUG=true
 fi
 
+export HA_URL="http://supervisor/core"
+export HA_TOKEN="${SUPERVISOR_TOKEN}"
+
 bashio::log.info 'Start Bambuddy ...'
 uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --loop asyncio
