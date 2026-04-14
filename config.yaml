@@ -14,12 +14,105 @@ init: false
 hassio_role: homeassistant
 privileged:
   - NET_RAW
+  - NET_BIND_SERVICE
 homeassistant_api: true
 options:
   debug: false
+  virtual_printer_enabled: false
+  bind_port_1: 3000
+  bind_port_2: 3002
+  ssdp_port: 2021
+  mqtt_port: 8883
+  file_transfer_port: 6000
+  rtsp_camera_port: 322
+  ftps_port: 990
+  ftp_data_port_start: 50000
+  ftp_data_port_end: 50100
+  proprietary_port_start: 2024
+  proprietary_port_end: 2026
 schema:
   debug: bool
+  virtual_printer_enabled:
+    bool: true
+    description: "Enable Virtual Printer support. WARNING: This adds many ports to the container. See documentation at https://wiki.bambuddy.cool/features/virtual-printer/"
+  bind_port_1:
+    int: true
+    description: "Bind/Detect port 1 (primary, required for all slicer versions)"
+    default: 3000
+    min: 1024
+    max: 65535
+  bind_port_2:
+    int: true
+    description: "Bind/Detect port 2 (secondary, required for all slicer versions)"
+    default: 3002
+    min: 1024
+    max: 65535
+  ssdp_port:
+    int: true
+    description: "SSDP discovery port (UDP, for same LAN discovery)"
+    default: 2021
+    min: 1024
+    max: 65535
+  mqtt_port:
+    int: true
+    description: "MQTT TLS port (TCP/TLS, for printer communication)"
+    default: 8883
+    min: 1024
+    max: 65535
+  file_transfer_port:
+    int: true
+    description: "File transfer tunnel port (TCP/TLS, for job verification & upload)"
+    default: 6000
+    min: 1024
+    max: 65535
+  rtsp_camera_port:
+    int: true
+    description: "RTSP camera streaming port (TCP/TLS, for X1/H2/P2 series)"
+    default: 322
+    min: 1
+    max: 65535
+  ftps_port:
+    int: true
+    description: "FTPS port (TCP/TLS, requires CAP_NET_BIND_SERVICE). WARNING: Port 990 is a privileged port!"
+    default: 990
+    min: 1
+    max: 65535
+  ftp_data_port_start:
+    int: true
+    description: "FTP passive data port range start (TCP, for file transfers)"
+    default: 50000
+    min: 1024
+    max: 65535
+  ftp_data_port_end:
+    int: true
+    description: "FTP passive data port range end (TCP, for file transfers)"
+    default: 50100
+    min: 1024
+    max: 65535
+  proprietary_port_start:
+    int: true
+    description: "Proprietary slicer port range start (TCP/TLS, for A1/P1S models)"
+    default: 2024
+    min: 1024
+    max: 65535
+  proprietary_port_end:
+    int: true
+    description: "Proprietary slicer port range end (TCP/TLS, for A1/P1S models)"
+    default: 2026
+    min: 1024
+    max: 65535
 ports:
   8000/tcp: 8000
+ports_description:
+  virtual_printer_ports: |
+    Virtual Printer adds ports when enabled:
+    - Bind/Detect: 3000 (TCP), 3002 (TCP)
+    - SSDP: 2021 (UDP) - for same LAN discovery
+    - MQTT: 8883 (TCP/TLS)
+    - File Transfer: 6000 (TCP/TLS)
+    - RTSP Camera: 322 (TCP/TLS) - for X1/H2/P2 printers
+    - FTPS: 990 (TCP/TLS) - privileged port
+    - FTP Data: 50000-50100 (TCP)
+    - Proprietary: 2024-2026 (TCP/TLS) - for A1/P1S models
 webui: http://[HOST]:[PORT:8000]
 watchdog: http://[HOST]:[PORT:8000]/health

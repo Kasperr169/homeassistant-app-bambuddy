@@ -1,12 +1,28 @@
 #!/usr/bin/with-contenv bashio
 # ==============================================================================
-# Start the example service
+# Start the Bambuddy service
 # s6-overlay docs: https://github.com/just-containers/s6-overlay
 # ==============================================================================
 
-# Add your code here
+# Read configuration
 declare debug
+declare virtual_printer_enabled
+declare bind_port_1 bind_port_2 ssdp_port mqtt_port file_transfer_port rtsp_camera_port ftps_port
+declare ftp_data_port_start ftp_data_port_end proprietary_port_start proprietary_port_end
+
 debug=$(bashio::config 'debug')
+virtual_printer_enabled=$(bashio::config 'virtual_printer_enabled')
+bind_port_1=$(bashio::config 'bind_port_1')
+bind_port_2=$(bashio::config 'bind_port_2')
+ssdp_port=$(bashio::config 'ssdp_port')
+mqtt_port=$(bashio::config 'mqtt_port')
+file_transfer_port=$(bashio::config 'file_transfer_port')
+rtsp_camera_port=$(bashio::config 'rtsp_camera_port')
+ftps_port=$(bashio::config 'ftps_port')
+ftp_data_port_start=$(bashio::config 'ftp_data_port_start')
+ftp_data_port_end=$(bashio::config 'ftp_data_port_end')
+proprietary_port_start=$(bashio::config 'proprietary_port_start')
+proprietary_port_end=$(bashio::config 'proprietary_port_end')
 
 bashio::log.info 'Link data dir'
 mkdir -p /data/data
@@ -15,6 +31,24 @@ rm -r /app/data
 rm -r /app/logs
 ln -s /data/data /app/data
 ln -s /data/logs /app/logs
+
+# Create virtual printer directories if enabled
+if [ "${virtual_printer_enabled}" = "true" ]; then
+  bashio::log.info 'Virtual Printer support is ENABLED'
+  bashio::log.warning 'Virtual Printer adds many network ports and requires CAP_NET_BIND_SERVICE'
+  mkdir -p /data/data/virtual_printer/certs
+  bashio::log.info "Virtual Printer Port Configuration:"
+  bashio::log.info "  Bind/Detect: ${bind_port_1} (TCP), ${bind_port_2} (TCP)"
+  bashio::log.info "  SSDP: ${ssdp_port} (UDP)"
+  bashio::log.info "  MQTT: ${mqtt_port} (TCP/TLS)"
+  bashio::log.info "  File Transfer: ${file_transfer_port} (TCP/TLS)"
+  bashio::log.info "  RTSP Camera: ${rtsp_camera_port} (TCP/TLS)"
+  bashio::log.info "  FTPS: ${ftps_port} (TCP/TLS - privileged port)"
+  bashio::log.info "  FTP Data: ${ftp_data_port_start}-${ftp_data_port_end} (TCP)"
+  bashio::log.info "  Proprietary: ${proprietary_port_start}-${proprietary_port_end} (TCP/TLS)"
+else
+  bashio::log.info 'Virtual Printer support is DISABLED'
+fi
 
 cd /app
 
