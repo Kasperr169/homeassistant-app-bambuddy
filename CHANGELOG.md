@@ -4,6 +4,9 @@
 
 All notable changes to the App will be documented in this file.
 
+## [0.2.3b3-2] - 2026-04-14
+- Add virtual printer configuration options
+
 ## [0.2.3b3-1] - 2026-04-14
 - Bump bambuddy to v0.2.3b3
 
